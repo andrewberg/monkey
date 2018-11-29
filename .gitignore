@@ -1,0 +1,14 @@
+# Editors.
+*.sw*
+.vscode
+.DS_Store
+
+# Build directory.
+build/
+out/
+
+# built files
+*.x
+
+# ignores the database files in test_suite
+*.db/
