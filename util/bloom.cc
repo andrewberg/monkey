@@ -55,8 +55,8 @@ class BloomFilterPolicy : public FilterPolicy {
     file.close();
 
     // dynamic bit per entries for optimal bloom filters
-    if (monkey_filters_) {
-      if (num_entries < 886336) {
+    if (monkey_filters_) { 
+      if (num_entries < 886336) { 
         bits = n * 4;
       } else if (num_entries < 988736) {
         bits = n * 8;

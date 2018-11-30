@@ -17,6 +17,17 @@ int main(int argc, char** argv)
 {
     srand(time(NULL));
 
+    // flags for monkey or no monkey, defaults to false
+    bool monkey = false;
+
+    // check args for --monkey-filters flag
+    for (int i = 1; i < argc; ++i) { // loop through arguments checking for flags
+        if (strcmp(argv[i], "--monkey-filters") == 0) {
+            monkey = true;
+            std::cout << "Monkey filters in use." << std::endl;
+        }
+    }
+
     // string for opening db to insert and test
     std::string db_file = "./monkey.db";
 
@@ -32,7 +43,7 @@ int main(int argc, char** argv)
     options.create_if_missing = true;
 
     // bits per entry for default leveldb implementation
-    options.filter_policy = leveldb::NewBloomFilterPolicy(5);
+    options.filter_policy = leveldb::NewBloomFilterPolicy(5, monkey);
 
     // open the given db object
     leveldb::DB::Open(options, db_file, &db);
@@ -91,7 +102,8 @@ int main(int argc, char** argv)
     }
 
     std::cout << "It took me " 
-        << std::chrono::duration_cast<std::chrono::milliseconds>(total_time).count()/((double) num_gets)
+        //<< std::chrono::duration_cast<std::chrono::milliseconds>(total_time).count()/((double) num_gets)
+        << total_time.count()/num_gets
         << " milliseconds on average for " << num_gets << " zero-point lookups.";
     std::cout << std::endl;
 
