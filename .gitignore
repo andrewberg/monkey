@@ -10,6 +10,7 @@ out/
 # built files
 *.x
 *.o
+*.d
 
 # ignores the database files in test_suite
 *.db/

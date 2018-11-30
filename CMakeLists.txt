@@ -153,6 +153,10 @@ target_sources(leveldb
     "${PROJECT_SOURCE_DIR}/util/options.cc"
     "${PROJECT_SOURCE_DIR}/util/random.h"
     "${PROJECT_SOURCE_DIR}/util/status.cc"
+    "${PROJECT_SOURCE_DIR}/algorithm_suite/autotune-filters/auto_tune_filters.h"
+    "${PROJECT_SOURCE_DIR}/algorithm_suite/autotune-filters/auto_tune_filters.cc"
+    "${PROJECT_SOURCE_DIR}/algorithm_suite/autotune-filters/run.cc"
+    "${PROJECT_SOURCE_DIR}/algorithm_suite/autotune-filters/run.h"
 
   # Only CMake 3.3+ supports PUBLIC sources in targets exported by "install".
   $<$<VERSION_GREATER:CMAKE_VERSION,3.2>:PUBLIC>

@@ -112,7 +112,7 @@ Options SanitizeOptions(const std::string& dbname,
     }
   }
   if (result.block_cache == nullptr) {
-    result.block_cache = NewLRUCache(8 << 20);
+    // result.block_cache = NewLRUCache(8 << 20); andrew disabled block caches
   }
   return result;
 }
@@ -1205,10 +1205,13 @@ Status DBImpl::Put(const WriteOptions& o, const Slice& key, const Slice& val) {
   total_bytes+=val.size();
   num_entries+=1;
 
-  /*std::ofstream file;
+  std::ofstream file;
   file.open("METADATA_DB", std::ios::trunc);
   file << num_entries;
-  file.close();*/
+  file.close();
+
+  //VersionSet::LevelSummaryStorage tmp;
+  //std::cout << versions_->LevelSummary(&tmp) << std::endl;
 
   return DB::Put(o, key, val);
 }

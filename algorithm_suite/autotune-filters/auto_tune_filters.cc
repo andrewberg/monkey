@@ -5,14 +5,29 @@
  * to implementation to LevelDB
  */
 
+/*
 int
 main()
 {
-	
-	run_tests();
+	//run_tests();
+
+	std::vector<Run> runs;
+
+	int num_entries = 1000000;
+	int bits_per_entry = 5;
+	int size_per_entry = 1024;
+	int size_ratio = 2;
+
+	int memory_budget = num_entries * bits_per_entry;
+
+	create_runs(size_ratio, size_per_entry, num_entries, bits_per_entry, runs);
+
+	run_tests(memory_budget, runs);
+
+	std::cout << calculate_bits(5000, runs) << std::endl;
 
 	return 0;
-}
+}*/
 
 /*
  * Algorithm 1: Allocate memory_budget to minizime the sum of False Positive Rates
@@ -21,7 +36,7 @@ main()
  */
 
 std::vector<Run>
-auto_tune_filters(int memory_budget, std::vector<Run> runs)
+auto_tune_filters(int memory_budget, std::vector<Run> & runs)
 {
 	int delta = memory_budget; // given memory budget from input
 	runs[1].setBits(memory_budget); // allocate all memory to run 0 to start
@@ -32,7 +47,6 @@ auto_tune_filters(int memory_budget, std::vector<Run> runs)
 
 		for (int i = 1; i < runs.size() - 1; ++i) {
 			for (int j = i + 1; j < runs.size(); ++j) {
-				std::cout << j << std::endl;
 				R_new = try_switch(runs[i], runs[j], delta, R);
 				R_new = try_switch(runs[j], runs[i], delta, R);
 			}
@@ -99,12 +113,7 @@ take_entries()
 
 	/* take from input and establish the different run objects in vector form */
 	while (std::cin >> num_entries) {
-		Run current_run;
-
-		/* set the run entries and bits */
-
-		current_run.setEntries(num_entries);
-		current_run.setBits(0); // set to 0 for alter use
+		Run current_run (num_entries, 0);
 
 		runs.push_back(current_run);
 	}
@@ -169,25 +178,20 @@ print_run_results(std::vector<Run> runs)
  */
 
 void
-run_tests()
+run_tests(int memory_budget, std::vector<Run> & runs)
 {
-	std::vector<Run> runs;
-	int memory_budget;
-
-	memory_budget = take_mem_budget();
-	runs = take_entries();
 
 	std::vector<Run> monkey_filters = 
 		auto_tune_filters(memory_budget, runs);
 
-	std::vector<Run> leveldb_filters = 
-		state_of_art_computation(memory_budget, runs);
+	//std::vector<Run> leveldb_filters = 
+	//	state_of_art_computation(memory_budget, runs);
 
-	std::cout << "--- MONKEY LEVELS ---" << std::endl;
-	print_run_results(monkey_filters);
+	//std::cout << "--- MONKEY LEVELS ---" << std::endl;
+	//print_run_results(monkey_filters);
 
-	std::cout << "--- LEVELDB LEVELS ---" << std::endl;
-	print_run_results(leveldb_filters);
+	//std::cout << "--- LEVELDB LEVELS ---" << std::endl;
+	//print_run_results(leveldb_filters);
 }
 
 /*
@@ -223,5 +227,88 @@ state_of_art_computation(int memory_budget, std::vector<Run> & runs)
 	return runs;
 }
 
+int
+take_size_ratio()
+{
+	int size_ratio;
+
+	std::cin >> size_ratio;
+
+	return size_ratio;
+}
+
+int
+take_num_entries()
+{
+	int total_entries;
+
+	std::cin >> total_entries;
+
+	return total_entries;
+}
+
+int
+take_buffer()
+{
+	int buffer;
+
+	std::cin >> buffer;
+
+	return buffer;
+}
+
+int
+take_bits_per_entry()
+{
+	int bits_per_entry;
+
+	std::cin >> bits_per_entry;
+
+	return bits_per_entry;
+}
+
+void
+create_runs(int size_ratio, int buffer, int entries, int bits_per_entry, std::vector<Run> & runs)
+{
+
+	int level = buffer;
+
+	int mem_budget = bits_per_entry * entries;
+
+	int entries_left = entries;
+
+	int cur_entries = 0;
+
+	int total = 0;
+
+	// go until total entries left will not fill up next level
+
+	while (entries_left >= level) {
+		total += level;
+		entries_left -= level;
+		
+		runs.push_back(Run(level, 0));
+
+		level *= size_ratio;
+	}
+
+	runs.push_back(Run(entries_left, 0));
+
+}
+
+int
+calculate_bits(int num_entry, std::vector<Run> runs)
+{
+	int total = 0;
+
+	for (int i = 0; i < runs.size(); ++i) {
+		total += runs[i].getEntries();
+		if (num_entry < total) {
+			return runs[i].getBits()/runs[i].getEntries();
+		}
+	}
+
+	return -1;
+}
 
 

@@ -102,8 +102,8 @@ int main(int argc, char** argv)
     }
 
     std::cout << "It took me " 
-        //<< std::chrono::duration_cast<std::chrono::milliseconds>(total_time).count()/((double) num_gets)
-        << total_time.count()/num_gets
+        << std::chrono::duration_cast<std::chrono::microseconds>(total_time).count()/((double) num_gets)
+        //<< total_time.count()/num_gets
         << " milliseconds on average for " << num_gets << " zero-point lookups.";
     std::cout << std::endl;
 

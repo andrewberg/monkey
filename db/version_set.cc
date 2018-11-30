@@ -42,9 +42,10 @@ static double MaxBytesForLevel(const Options* options, int level) {
   // the level-0 compaction threshold based on number of files.
 
   // Result for both level-0 and level-1
-  double result = 10. * 1048576.0;
-  while (level > 1) {
-    result *= 10;
+  // double result = 10. * 1048576.0;
+  double result = 1024;
+  while (level > -1) {
+    result *= 2; // size ratio andrew
     level--;
   }
   return result;
@@ -1142,16 +1143,22 @@ int VersionSet::NumLevelFiles(int level) const {
 
 const char* VersionSet::LevelSummary(LevelSummaryStorage* scratch) const {
   // Update code if kNumLevels changes
-  assert(config::kNumLevels == 7);
+  assert(config::kNumLevels == 12);
   snprintf(scratch->buffer, sizeof(scratch->buffer),
-           "files[ %d %d %d %d %d %d %d ]",
+           "files[ %d %d %d %d %d %d %d %d %d %d %d %d %d ]",
            int(current_->files_[0].size()),
            int(current_->files_[1].size()),
            int(current_->files_[2].size()),
            int(current_->files_[3].size()),
            int(current_->files_[4].size()),
            int(current_->files_[5].size()),
-           int(current_->files_[6].size()));
+           int(current_->files_[6].size()),
+           int(current_->files_[7].size()),
+           int(current_->files_[8].size()),
+           int(current_->files_[9].size()),
+           int(current_->files_[10].size()),
+           int(current_->files_[11].size()),
+           int(current_->files_[12].size()));
   return scratch->buffer;
 }
 

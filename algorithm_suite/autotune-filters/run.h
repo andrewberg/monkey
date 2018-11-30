@@ -10,6 +10,10 @@ class Run {
 	public:
 		/* constructor for the Run */
 
+		Run() {}
+
+		Run(int e, int b): entries(e),
+						   bits(b) {}
 
 		/* getter and setters of bits */
 

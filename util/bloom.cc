@@ -7,10 +7,12 @@
 #include "leveldb/slice.h"
 #include "util/hash.h"
 #include "db/version_set.h"
+#include "algorithm_suite/autotune-filters/auto_tune_filters.h"
 
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 namespace leveldb {
 
@@ -47,22 +49,29 @@ class BloomFilterPolicy : public FilterPolicy {
   virtual void CreateFilter(const Slice* keys, int n, std::string* dst) const {
     size_t bits = n * bits_per_key_;
 
-    long num_entries = 0;
+    int current_entries = 0;
 
     std::ifstream file;
     file.open("METADATA_DB");
-    file >> num_entries;
+    file >> current_entries;
     file.close();
 
+    std::vector<Run> runs;
+
+    int num_entries = 1000000;
+    int bits_per_entry = 5;
+    int size_per_entry = 1024;
+    int size_ratio = 2;
+
+    int memory_budget = num_entries * bits_per_entry;
+
+    create_runs(size_ratio, size_per_entry, num_entries, bits_per_entry, runs);
+
+    run_tests(memory_budget, runs);
+
     // dynamic bit per entries for optimal bloom filters
-    if (monkey_filters_) { 
-      if (num_entries < 886336) { 
-        bits = n * 4;
-      } else if (num_entries < 988736) {
-        bits = n * 8;
-      } else {
-        bits = n * 13;
-      }
+    if (monkey_filters_) {
+      bits = calculate_bits(current_entries, runs) * n;
     }
     // Compute bloom filter size (in both bits and bytes)
     

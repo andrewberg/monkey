@@ -179,7 +179,7 @@ struct LEVELDB_EXPORT ReadOptions {
 
   ReadOptions()
       : verify_checksums(false),
-        fill_cache(true),
+        fill_cache(false), // andrew
         snapshot(nullptr) {
   }
 };
