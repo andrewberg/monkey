@@ -20,6 +20,12 @@ int main(int argc, char** argv)
     // string for opening db to insert and test
     std::string db_file = "./monkey.db";
 
+    // clean up old db before running tests
+    std::string rm;
+    rm += "rm -rf ";
+    rm += db_file;
+    system(rm.c_str());
+
     // Set up database connection information and open database
     leveldb::DB* db;
     leveldb::Options options;
@@ -45,7 +51,7 @@ int main(int argc, char** argv)
         keyStream << "Key" << i;
         
         ostringstream valueStream;
-        valueStream << "" << i;
+        valueStream << value_string << i;
         
         db->Put(writeOptions, keyStream.str(), valueStream.str());
     }
@@ -60,7 +66,7 @@ int main(int argc, char** argv)
     std::string str;
 
     // total time that is the amount of time for all of the aggregated gets
-    std::chrono::duration<double> total_time (std::chrono::duration<double>(1));
+    std::chrono::duration<double> total_time = std::chrono::duration<double>(0);
 
     for (int i = 0; i < num_gets; ++i) {
         int r = rand() % num_gets;
@@ -85,7 +91,7 @@ int main(int argc, char** argv)
     }
 
     std::cout << "It took me " 
-        << std::chrono::duration_cast<std::chrono::milliseconds>(total_time).count()/num_gets 
+        << std::chrono::duration_cast<std::chrono::milliseconds>(total_time).count()/((double) num_gets)
         << " milliseconds on average for " << num_gets << " zero-point lookups.";
     std::cout << std::endl;
 

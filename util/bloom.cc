@@ -7,6 +7,7 @@
 #include "leveldb/slice.h"
 #include "util/hash.h"
 #include "db/version_set.h"
+#include "db/options.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -49,14 +50,15 @@ class BloomFilterPolicy : public FilterPolicy {
     file >> num_entries;
     file.close();
 
-    if (num_entries < 774420) {
-      bits = n * 9;
-    } else if (num_entries < 204800) {
-      bits = n * 12;
+    
+    // dynamic bit per entries for optimal bloom filters
+    if (num_entries < 886336) {
+      bits = n * 4;
+    } else if (num_entries < 988736) {
+      bits = n * 8;
     } else {
-      bits = n * 16;
+      bits = n * 13;
     }
-
     // Compute bloom filter size (in both bits and bytes)
     
 
