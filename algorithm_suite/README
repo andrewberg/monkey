@@ -1,0 +1,9 @@
+Test data for FPR optimization
+
+fpr-test1.txt
+
+1,000,000 1 KB Entries
+
+10 MB - FULL LEFT OVER (990 MB) - 10,000 entries
+100 MB - FULL LEFT OVER (890 MB) - 100,000
+1 GB - NOT FULL (890 MB) - 890,000 entries
