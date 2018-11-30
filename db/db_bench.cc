@@ -994,8 +994,8 @@ int main(int argc, char** argv) {
       FLAGS_block_size = n;
     } else if (sscanf(argv[i], "--cache_size=%d%c", &n, &junk) == 1) {
       FLAGS_cache_size = n;
-    } else if (sscanf(argv[i], "--bloom_monkey=%d%c", &n, &junk) == 1) {
-      FLAGS_monkey = n;
+    } else if (strcmp(argv[i], "--bloom_monkey") == 0) { // andrew
+      FLAGS_monkey = 1;
     } else if (sscanf(argv[i], "--bloom_bits=%d%c", &n, &junk) == 1) {
       FLAGS_bloom_bits = n;
     } else if (sscanf(argv[i], "--open_files=%d%c", &n, &junk) == 1) {
