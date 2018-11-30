@@ -25,7 +25,7 @@ class BloomTest {
   std::vector<std::string> keys_;
 
  public:
-  BloomTest() : policy_(NewBloomFilterPolicy(10)) { }
+  BloomTest() : policy_(NewBloomFilterPolicy(10, false)) { } // andrew false for this test
 
   ~BloomTest() {
     delete policy_;

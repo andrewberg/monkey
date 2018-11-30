@@ -339,7 +339,7 @@ int main(int argc, char** argv) {
       policy = leveldb_filterpolicy_create(
           NULL, FilterDestroy, FilterCreate, FilterKeyMatch, FilterName);
     } else {
-      policy = leveldb_filterpolicy_create_bloom(10);
+      policy = leveldb_filterpolicy_create_bloom(10, 0); // andrew
     }
 
     // Create new database

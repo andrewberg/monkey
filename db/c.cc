@@ -506,7 +506,7 @@ void leveldb_filterpolicy_destroy(leveldb_filterpolicy_t* filter) {
   delete filter;
 }
 
-leveldb_filterpolicy_t* leveldb_filterpolicy_create_bloom(int bits_per_key) {
+leveldb_filterpolicy_t* leveldb_filterpolicy_create_bloom(int bits_per_key, int monkey_filters) { // andrew
   // Make a leveldb_filterpolicy_t, but override all of its methods so
   // they delegate to a NewBloomFilterPolicy() instead of user
   // supplied C functions.
@@ -523,7 +523,7 @@ leveldb_filterpolicy_t* leveldb_filterpolicy_create_bloom(int bits_per_key) {
     static void DoNothing(void*) { }
   };
   Wrapper* wrapper = new Wrapper;
-  wrapper->rep_ = NewBloomFilterPolicy(bits_per_key);
+  wrapper->rep_ = NewBloomFilterPolicy(bits_per_key, monkey_filters); // andrew
   wrapper->state_ = nullptr;
   wrapper->destructor_ = &Wrapper::DoNothing;
   return wrapper;

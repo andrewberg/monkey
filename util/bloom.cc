@@ -7,7 +7,6 @@
 #include "leveldb/slice.h"
 #include "util/hash.h"
 #include "db/version_set.h"
-#include "db/options.h"
 
 #include <stdio.h>
 #include <iostream>
@@ -25,10 +24,15 @@ class BloomFilterPolicy : public FilterPolicy {
   size_t bits_per_key_;
   size_t k_;
 
+  // andrew
+  bool monkey_filters_;
+
 
  public:
-  explicit BloomFilterPolicy(int bits_per_key)
-      : bits_per_key_(bits_per_key) {
+  explicit BloomFilterPolicy(int bits_per_key, 
+                             bool monkey_filters)
+      : bits_per_key_(bits_per_key),
+      monkey_filters_(monkey_filters) { // andrew
     // We intentionally round down to reduce probing cost a little bit
     k_ = static_cast<size_t>(bits_per_key * 0.69);  // 0.69 =~ ln(2)
 
@@ -50,14 +54,15 @@ class BloomFilterPolicy : public FilterPolicy {
     file >> num_entries;
     file.close();
 
-    
     // dynamic bit per entries for optimal bloom filters
-    if (num_entries < 886336) {
-      bits = n * 4;
-    } else if (num_entries < 988736) {
-      bits = n * 8;
-    } else {
-      bits = n * 13;
+    if (monkey_filters_) {
+      if (num_entries < 886336) {
+        bits = n * 4;
+      } else if (num_entries < 988736) {
+        bits = n * 8;
+      } else {
+        bits = n * 13;
+      }
     }
     // Compute bloom filter size (in both bits and bytes)
     
@@ -116,8 +121,8 @@ class BloomFilterPolicy : public FilterPolicy {
 };
 }
 
-const FilterPolicy* NewBloomFilterPolicy(int bits_per_key) {
-  return new BloomFilterPolicy(bits_per_key);
+const FilterPolicy* NewBloomFilterPolicy(int bits_per_key, bool monkey_filters) {
+  return new BloomFilterPolicy(bits_per_key, monkey_filters);
 }
 
 }  // namespace leveldb

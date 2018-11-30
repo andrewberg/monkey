@@ -102,6 +102,11 @@ static int FLAGS_open_files = 0;
 // Negative means use default settings.
 static int FLAGS_bloom_bits = -1;
 
+// andrew
+// zero means don't use monkey
+// one means use monkey
+static int FLAGS_monkey = 0;
+
 // If true, do not destroy the existing database.  If you set this
 // flag and also specify a benchmark that wants a fresh database, that
 // benchmark will fail.
@@ -404,7 +409,7 @@ class Benchmark {
   Benchmark()
   : cache_(FLAGS_cache_size >= 0 ? NewLRUCache(FLAGS_cache_size) : nullptr),
     filter_policy_(FLAGS_bloom_bits >= 0
-                   ? NewBloomFilterPolicy(FLAGS_bloom_bits)
+                   ? NewBloomFilterPolicy(FLAGS_bloom_bits, FLAGS_monkey) // andrew
                    : nullptr),
     db_(nullptr),
     num_(FLAGS_num),
@@ -989,6 +994,8 @@ int main(int argc, char** argv) {
       FLAGS_block_size = n;
     } else if (sscanf(argv[i], "--cache_size=%d%c", &n, &junk) == 1) {
       FLAGS_cache_size = n;
+    } else if (sscanf(argv[i], "--bloom_monkey=%d%c", &n, &junk) == 1) {
+      FLAGS_monkey = n;
     } else if (sscanf(argv[i], "--bloom_bits=%d%c", &n, &junk) == 1) {
       FLAGS_bloom_bits = n;
     } else if (sscanf(argv[i], "--open_files=%d%c", &n, &junk) == 1) {

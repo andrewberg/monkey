@@ -216,8 +216,10 @@ LEVELDB_EXPORT leveldb_filterpolicy_t* leveldb_filterpolicy_create(
     const char* (*name)(void*));
 LEVELDB_EXPORT void leveldb_filterpolicy_destroy(leveldb_filterpolicy_t*);
 
+// andrew
 LEVELDB_EXPORT leveldb_filterpolicy_t* leveldb_filterpolicy_create_bloom(
-    int bits_per_key);
+    int bits_per_key,
+    int monkey_filters);
 
 /* Read options */
 

@@ -9,6 +9,10 @@ out/
 
 # built files
 *.x
+*.o
 
 # ignores the database files in test_suite
 *.db/
+
+# ignores the metadata for monkey
+METADATA_DB
