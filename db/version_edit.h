@@ -68,7 +68,7 @@ class VersionEdit {
     f.file_size = file_size;
     f.smallest = smallest;
     f.largest = largest;
-    new_files_.push_back(std::make_pair(level, f));
+    new_files_.push_back(std::make_pair(level, f)); // andrew
   }
 
   // Delete the specified "file" from the specified "level".

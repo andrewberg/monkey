@@ -46,45 +46,16 @@ class BloomFilterPolicy : public FilterPolicy {
     return "leveldb.BuiltinBloomFilter2";
   }
 
-  virtual void CreateFilter(const Slice* keys, int n, std::string* dst) const {
+  virtual void CreateFilter(const Slice* keys, int n, std::string* dst, int num_bits) const {
     size_t bits = n * bits_per_key_;
-
-    long cur = 0;
-    
-    std::ifstream ifile;
-    ifile.open("test");
-    ifile >> cur;
-    ifile.close();
-
-    cur = cur + n;
-
-    std::ofstream ofile;
-    ofile.open("test", std::ios::trunc);
-    ofile << cur;
-    ofile.close();
-
-
-    std::vector<Run> runs;
-
-    int num_entries = 2 << 19;
-    int bits_per_entry = 5;
-    int size_per_entry = 1024;
-    int size_ratio = 2;
-
-    int memory_budget = num_entries * bits_per_entry;
-
-    create_runs(size_ratio, size_per_entry, num_entries, bits_per_entry, runs);
-
-    run_tests(memory_budget, runs);
 
     size_t k_new = static_cast<size_t>(bits_per_key_ * 0.69);
 
     // dynamic bit per entries for optimal bloom filters
     if (monkey_filters_) {
-      int new_bits_per = calculate_bits(cur, runs);
 
-      bits = new_bits_per * n;
-      k_new = static_cast<size_t>(new_bits_per);
+      bits = num_bits * n;
+      k_new = static_cast<size_t>(new_bits_per * 0.69);
       //std::cout << new_bits_per << std::endl;
     }
     // Compute bloom filter size (in both bits and bytes)
@@ -96,7 +67,6 @@ class BloomFilterPolicy : public FilterPolicy {
 
     size_t bytes = (bits + 7) / 8;
     bits = bytes * 8;
-
     
 
     const size_t init_size = dst->size();

@@ -36,6 +36,10 @@
 #include "util/logging.h"
 #include "util/mutexlock.h"
 
+
+// andrew
+#include "algorithm_suite/autotune-filters/auto_tune_filters.h"
+
 namespace leveldb {
 
 const int kNumNonTableCacheFiles = 10;
@@ -817,7 +821,7 @@ Status DBImpl::OpenCompactionOutputFile(CompactionState* compact) {
   return s;
 }
 
-Status DBImpl::FinishCompactionOutputFile(CompactionState* compact,
+Status DBImpl::FinishCompactionOutputFile(CompactionState* compact, // compaction has a value 
                                           Iterator* input) {
   assert(compact != nullptr);
   assert(compact->outfile != nullptr);
@@ -886,7 +890,7 @@ Status DBImpl::InstallCompactionResults(CompactionState* compact) {
     const CompactionState::Output& out = compact->outputs[i];
     compact->compaction->edit()->AddFile(
         level + 1,
-        out.number, out.file_size, out.smallest, out.largest);
+        out.number, out.file_size, out.smallest, out.largest); // here we can trigger recalculation of the bits per entry and redo the filter block
   }
   return versions_->LogAndApply(compact->compaction->edit(), &mutex_);
 }
@@ -999,13 +1003,36 @@ Status DBImpl::DoCompactionWork(CompactionState* compact) {
       if (compact->builder->NumEntries() == 0) {
         compact->current_output()->smallest.DecodeFrom(key);
       }
-      compact->current_output()->largest.DecodeFrom(key);
-      compact->builder->Add(key, input->value());
 
+      bool monkey = true;
+
+      // can pass down the number of bits here based on new level
+      int new_level = compact->compaction->level() + 1;
+
+      int num_entries = 2 << 19;
+      int bits_per_entry = 5;
+      int size_per_entry = 1024;
+      int size_ratio = 2;
+
+      int memory_budget = num_entries * bits_per_entry;
+
+      create_runs(size_ratio, size_per_entry, num_entries, bits_per_entry, runs);
+
+      run_tests(memory_budget, runs);
+
+      int bits_levels = 5;
+
+      if (monkey) {
+        bits_levels = get_bits_level(new_level, runs);
+      }
+
+      compact->current_output()->largest.DecodeFrom(key);
+      compact->builder->Add(key, input->value(), bits_levels); // builder is TableBuilder and adds the key to the Table
+      
       // Close output file if it is big enough
       if (compact->builder->FileSize() >=
           compact->compaction->MaxOutputFileSize()) {
-        status = FinishCompactionOutputFile(compact, input);
+        status = FinishCompactionOutputFile(compact, input); // calls this with the file when the file is big enough
         if (!status.ok()) {
           break;
         }

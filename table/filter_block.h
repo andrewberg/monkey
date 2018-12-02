@@ -31,13 +31,15 @@ class FilterBlockBuilder {
   explicit FilterBlockBuilder(const FilterPolicy*);
 
   void StartBlock(uint64_t block_offset);
-  void AddKey(const Slice& key);
+  void FilterBlockBuilder::AddKey(const Slice& key, int bits); // andrew
   Slice Finish();
 
  private:
   void GenerateFilter();
 
   int key_count;
+
+  int bits_per_key; // andrew
 
   const FilterPolicy* policy_;
   std::string keys_;              // Flattened key contents

@@ -90,7 +90,7 @@ Status TableBuilder::ChangeOptions(const Options& options) {
   return Status::OK();
 }
 
-void TableBuilder::Add(const Slice& key, const Slice& value) {
+void TableBuilder::Add(const Slice& key, const Slice& value, int bits) {
   
   Rep* r = rep_;
   assert(!r->closed);
@@ -109,7 +109,7 @@ void TableBuilder::Add(const Slice& key, const Slice& value) {
   }
 
   if (r->filter_block != nullptr) {
-    r->filter_block->AddKey(key);
+    r->filter_block->AddKey(key, bits); // number of bits can be added here based on the level it is going to
     //std::cout << "Adding to filter" << std::endl;
   }
 
@@ -119,7 +119,7 @@ void TableBuilder::Add(const Slice& key, const Slice& value) {
 
   const size_t estimated_block_size = r->data_block.CurrentSizeEstimate();
   if (estimated_block_size >= r->options.block_size) {
-    Flush();
+    Flush(); // flushes all data and then calls filter block
   }
 }
 
@@ -264,6 +264,7 @@ void TableBuilder::Abandon() {
 }
 
 uint64_t TableBuilder::NumEntries() const {
+  std::cout << num_entries << std::endl;
   return rep_->num_entries;
 }
 

@@ -30,10 +30,11 @@ void FilterBlockBuilder::StartBlock(uint64_t block_offset) {
   }
 }
 
-void FilterBlockBuilder::AddKey(const Slice& key) {
+void FilterBlockBuilder::AddKey(const Slice& key, int bits) {
   Slice k = key;
   start_.push_back(keys_.size());
   keys_.append(k.data(), k.size());
+  bits_per_key = bits; // andrew
 }
 
 Slice FilterBlockBuilder::Finish() {
@@ -72,7 +73,7 @@ void FilterBlockBuilder::GenerateFilter() {
 
   // Generate filter for current set of keys and append to result_.
   filter_offsets_.push_back(result_.size());
-  policy_->CreateFilter(&tmp_keys_[0], static_cast<int>(num_keys), &result_);
+  policy_->CreateFilter(&tmp_keys_[0], static_cast<int>(num_keys), &result_, bits_per_key);
 
   tmp_keys_.clear();
   keys_.clear();

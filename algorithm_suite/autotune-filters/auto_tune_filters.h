@@ -43,3 +43,6 @@ state_of_art_computation(int, std::vector<Run> &);
 
 int
 calculate_bits(int num_entry, std::vector<Run> runs);
+
+int
+get_bits_level(int level, std::vector<Run> runs);

@@ -24,7 +24,7 @@ main()
 
 	run_tests(memory_budget, runs);
 
-	std::cout << calculate_bits(5000, runs) << std::endl;
+	std::cout << get_bits_level(4, runs) << std::endl;
 
 	return 0;
 }*/
@@ -311,6 +311,12 @@ calculate_bits(int num_entry, std::vector<Run> runs)
 	}
 
 	return 5;
+}
+
+int
+get_bits_level(int level, std::vector<Run> runs)
+{
+	return runs[level].getBits()/runs[level].getEntries();
 }
 
 
