@@ -264,7 +264,6 @@ void TableBuilder::Abandon() {
 }
 
 uint64_t TableBuilder::NumEntries() const {
-  std::cout << num_entries << std::endl;
   return rep_->num_entries;
 }
 

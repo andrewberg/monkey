@@ -1009,6 +1009,8 @@ Status DBImpl::DoCompactionWork(CompactionState* compact) {
       // can pass down the number of bits here based on new level
       int new_level = compact->compaction->level() + 1;
 
+      std::vector<Run> runs;
+
       int num_entries = 2 << 19;
       int bits_per_entry = 5;
       int size_per_entry = 1024;

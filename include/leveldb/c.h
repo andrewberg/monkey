@@ -210,7 +210,7 @@ LEVELDB_EXPORT leveldb_filterpolicy_t* leveldb_filterpolicy_create(
     void* state, void (*destructor)(void*),
     char* (*create_filter)(void*, const char* const* key_array,
                            const size_t* key_length_array, int num_keys,
-                           size_t* filter_length),
+                           size_t* filter_length, int num_bits),
     unsigned char (*key_may_match)(void*, const char* key, size_t length,
                                    const char* filter, size_t filter_length),
     const char* (*name)(void*));

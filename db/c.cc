@@ -91,7 +91,8 @@ struct leveldb_filterpolicy_t : public FilterPolicy {
       void*,
       const char* const* key_array, const size_t* key_length_array,
       int num_keys,
-      size_t* filter_length);
+      size_t* filter_length,
+      int num_bits);
   unsigned char (*key_match_)(
       void*,
       const char* key, size_t length,
@@ -105,7 +106,7 @@ struct leveldb_filterpolicy_t : public FilterPolicy {
     return (*name_)(state_);
   }
 
-  virtual void CreateFilter(const Slice* keys, int n, std::string* dst) const {
+  virtual void CreateFilter(const Slice* keys, int n, std::string* dst, int num_bits) const {
     std::vector<const char*> key_pointers(n);
     std::vector<size_t> key_sizes(n);
     for (int i = 0; i < n; i++) {
@@ -113,7 +114,7 @@ struct leveldb_filterpolicy_t : public FilterPolicy {
       key_sizes[i] = keys[i].size();
     }
     size_t len;
-    char* filter = (*create_)(state_, &key_pointers[0], &key_sizes[0], n, &len);
+    char* filter = (*create_)(state_, &key_pointers[0], &key_sizes[0], n, &len, num_bits);
     dst->append(filter, len);
     free(filter);
   }
@@ -487,7 +488,8 @@ leveldb_filterpolicy_t* leveldb_filterpolicy_create(
         void*,
         const char* const* key_array, const size_t* key_length_array,
         int num_keys,
-        size_t* filter_length),
+        size_t* filter_length,
+        int num_bits),
     unsigned char (*key_may_match)(
         void*,
         const char* key, size_t length,
@@ -514,8 +516,8 @@ leveldb_filterpolicy_t* leveldb_filterpolicy_create_bloom(int bits_per_key, int 
     const FilterPolicy* rep_;
     ~Wrapper() { delete rep_; }
     const char* Name() const { return rep_->Name(); }
-    void CreateFilter(const Slice* keys, int n, std::string* dst) const {
-      return rep_->CreateFilter(keys, n, dst);
+    void CreateFilter(const Slice* keys, int n, std::string* dst, int num_bits) const {
+      return rep_->CreateFilter(keys, n, dst, num_bits);
     }
     bool KeyMayMatch(const Slice& key, const Slice& filter) const {
       return rep_->KeyMayMatch(key, filter);

@@ -31,7 +31,7 @@ class FilterBlockBuilder {
   explicit FilterBlockBuilder(const FilterPolicy*);
 
   void StartBlock(uint64_t block_offset);
-  void FilterBlockBuilder::AddKey(const Slice& key, int bits); // andrew
+  void AddKey(const Slice& key, int bits); // andrew
   Slice Finish();
 
  private:
