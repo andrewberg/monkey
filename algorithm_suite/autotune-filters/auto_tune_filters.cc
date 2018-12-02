@@ -5,15 +5,15 @@
  * to implementation to LevelDB
  */
 
-/*
-int
+
+/*int
 main()
 {
 	//run_tests();
 
 	std::vector<Run> runs;
 
-	int num_entries = 1000000;
+	int num_entries = 500000;
 	int bits_per_entry = 5;
 	int size_per_entry = 1024;
 	int size_ratio = 2;
@@ -301,6 +301,8 @@ calculate_bits(int num_entry, std::vector<Run> runs)
 {
 	int total = 0;
 
+	std::reverse(runs.begin(), runs.end());
+
 	for (int i = 0; i < runs.size(); ++i) {
 		total += runs[i].getEntries();
 		if (num_entry < total) {
@@ -308,7 +310,7 @@ calculate_bits(int num_entry, std::vector<Run> runs)
 		}
 	}
 
-	return -1;
+	return 5;
 }
 
 

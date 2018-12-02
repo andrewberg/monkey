@@ -49,7 +49,7 @@ class BloomFilterPolicy : public FilterPolicy {
   virtual void CreateFilter(const Slice* keys, int n, std::string* dst) const {
     size_t bits = n * bits_per_key_;
 
-    int current_entries = 0;
+    long current_entries = 0;
 
     std::ifstream file;
     file.open("METADATA_DB");
@@ -58,7 +58,7 @@ class BloomFilterPolicy : public FilterPolicy {
 
     std::vector<Run> runs;
 
-    int num_entries = 1000000;
+    int num_entries = 2 << 19;
     int bits_per_entry = 5;
     int size_per_entry = 1024;
     int size_ratio = 2;
@@ -69,9 +69,13 @@ class BloomFilterPolicy : public FilterPolicy {
 
     run_tests(memory_budget, runs);
 
+    size_t k_new = static_cast<size_t>(bits_per_key_ * 0.69);
+
     // dynamic bit per entries for optimal bloom filters
     if (monkey_filters_) {
       bits = calculate_bits(current_entries, runs) * n;
+      k_new = static_cast<size_t>(bits * 0.69);
+      //std::cout << calculate_bits(current_entries, runs) << std::endl;
     }
     // Compute bloom filter size (in both bits and bytes)
     
@@ -87,14 +91,14 @@ class BloomFilterPolicy : public FilterPolicy {
 
     const size_t init_size = dst->size();
     dst->resize(init_size + bytes, 0);
-    dst->push_back(static_cast<char>(k_));  // Remember # of probes in filter
+    dst->push_back(static_cast<char>(k_new));  // Remember # of probes in filter
     char* array = &(*dst)[init_size];
     for (int i = 0; i < n; i++) {
       // Use double-hashing to generate a sequence of hash values.
       // See analysis in [Kirsch,Mitzenmacher 2006].
       uint32_t h = BloomHash(keys[i]);
       const uint32_t delta = (h >> 17) | (h << 15);  // Rotate right 17 bits
-      for (size_t j = 0; j < k_; j++) {
+      for (size_t j = 0; j < k_new; j++) {
         const uint32_t bitpos = h % bits;
         array[bitpos/8] |= (1 << (bitpos % 8));
         h += delta;

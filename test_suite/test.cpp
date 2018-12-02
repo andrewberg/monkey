@@ -13,6 +13,9 @@
 
 using namespace std;
 
+std::string
+create_string(int size);
+
 int main(int argc, char** argv)
 {
     srand(time(NULL));
@@ -52,20 +55,29 @@ int main(int argc, char** argv)
     std::string value_string = "3353ZSt8TukolvuFuodXvliCdrf6N4kgO3Yv0tuNCwsMei1zROLp1Jg5XmMICe8ZFv2lOhuX9y939CPHWtjnYiP0B1jf2xD39CwPCq0gP3Iitr3Ze1YlMy0xBhDz1iqPqNgAlrbzUerxUll0dxoJ7DCdjvOErVoUZrRP7OdWjfjzPRVgEr0twJFoeUMA5oIuqPMdev71I8AnL4d3KODNYVaRGn58IjF6n3DL9kHD5W5JBfbluKVIXAqJXhewbBIhb5FOyhdt5NA3FjcZLrxG8LwezRtp9734iQPnrROXK6agAI2O8oYmWqEZmJbafnL0TEapMyka1uC26pVqcLMfU3tRFgxnXVmfEMEX9kqOiW9tFcxdAfUJlfbQIeuUkUvkTO2AgldkPetBPdFnn3Uutcn7zsPk7ag5HorwpYeeprgzJP8SI7EjpiZgNxV1VIsgCSW8RZIi98LHc32j4U3bNVIeKy3N4Qrzr3Flg9r014RikQtIVU6pYbKt4vtJ4bhCi1mkGaiJpRb16jXQoHC8YEUsmjAKNHquvmEjCMZ0EClkNCB5vIJSwmnhrbRAPHM2KIyQNUbuuzibvqg4E7b1n7cB7VA9elo9drNJAIZXmUTuQ5AkJ5WINKBCUfy6Xmp1E8cYRZ0eakvDVLRcGmQX9zAUA0smjeLLqxEfHywnvBLwVka5k2KgngfXRd4BsdlMwflSI2ecmDjbn590Izkmj16rEpTkrmsZG6SGL8EcrsJ1L6KMABGuA71dLC781mjsClbQfCdLLC8JG6misJzAt3nITUtZaBHCvMOrLPAtht80DMEaEQ3W4xVckR1Ebh0QIt1WZkXI9LVPl7oBBbBQTk7O4uIP5tIwlctATkg7GI83GFVcWhmcEtZ0ThvjpWRRHTRcPZmawjAKbtOzPHNlvnmI7w69dmMAf3d0bWQyziJC3j2lp35otgEIS4EBi6JZqmZeVvTeLfJ8tvHgy0jopMprrkyeu2HSyj4uoqsO";
 
     // number of keys, default is 1 million keys as per the paper
-    int num_keys = 1000000;
+    int num_keys = 2 << 19;
+
+    // size of value to generate
+    int value_size = 1024;
     
     // Add num_keys key value pairs to the database
     leveldb::WriteOptions writeOptions;
     for (unsigned int i = 0; i < num_keys; ++i)
     {
+        if (i % 50000 == 0) {
+            std::cout << i << std::endl;
+        }
+
         ostringstream keyStream;
         keyStream << "Key" << i;
         
         ostringstream valueStream;
-        valueStream << value_string << i;
+        valueStream << create_string(value_size) << i;
         
         db->Put(writeOptions, keyStream.str(), valueStream.str());
     }
+
+    std::cout << "done with puts" << std::endl;
 
     // number of gets to perform for the test run, default to 16K for the given research info
     int num_gets = 16000;
@@ -102,11 +114,25 @@ int main(int argc, char** argv)
     }
 
     std::cout << "It took me " 
-        << std::chrono::duration_cast<std::chrono::microseconds>(total_time).count()/((double) num_gets)
-        //<< total_time.count()/num_gets
+        //<< std::chrono::duration_cast<std::chrono::microseconds>(total_time).count()/((double) num_gets)
+        << total_time.count()/num_gets
         << " milliseconds on average for " << num_gets << " zero-point lookups.";
     std::cout << std::endl;
 
     // Close the database
     delete db;
+}
+
+std::string
+create_string(int size)
+{
+    std::string str;
+
+    for (int i = 0; i < size; ++i) {
+        int r = rand() % 255;
+
+        str += (char) r;
+    }
+
+    return str;
 }

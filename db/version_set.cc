@@ -42,9 +42,9 @@ static double MaxBytesForLevel(const Options* options, int level) {
   // the level-0 compaction threshold based on number of files.
 
   // Result for both level-0 and level-1
-  // double result = 10. * 1048576.0;
-  double result = 1024;
-  while (level > -1) {
+  double result = 1048576.0;
+  // double result = 1024 * 2;
+  while (level > 1) {
     result *= 2; // size ratio andrew
     level--;
   }
@@ -344,6 +344,7 @@ Status Version::Get(const ReadOptions& options,
   FileMetaData* last_file_read = nullptr;
   int last_file_read_level = -1;
 
+  // review andrew
   // We can search level-by-level since entries never hop across
   // levels.  Therefore we are guaranteed that if we find data
   // in an smaller level, later levels are irrelevant.
@@ -1074,7 +1075,7 @@ void VersionSet::Finalize(Version* v) {
 
   for (int level = 0; level < config::kNumLevels-1; level++) {
     double score;
-    if (level == 0) {
+    /*if (level == 0) {
       // We treat level-0 specially by bounding the number of files
       // instead of number of bytes for two reasons:
       //
@@ -1088,12 +1089,12 @@ void VersionSet::Finalize(Version* v) {
       // overwrites/deletions).
       score = v->files_[level].size() /
           static_cast<double>(config::kL0_CompactionTrigger);
-    } else {
+    } else {*/ // andrew
       // Compute the ratio of current size to size limit.
       const uint64_t level_bytes = TotalFileSize(v->files_[level]);
       score =
           static_cast<double>(level_bytes) / MaxBytesForLevel(options_, level);
-    }
+    //}
 
     if (score > best_score) {
       best_level = level;
@@ -1143,7 +1144,7 @@ int VersionSet::NumLevelFiles(int level) const {
 
 const char* VersionSet::LevelSummary(LevelSummaryStorage* scratch) const {
   // Update code if kNumLevels changes
-  assert(config::kNumLevels == 12);
+  assert(config::kNumLevels == 13);
   snprintf(scratch->buffer, sizeof(scratch->buffer),
            "files[ %d %d %d %d %d %d %d %d %d %d %d %d %d ]",
            int(current_->files_[0].size()),
