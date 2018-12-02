@@ -1205,11 +1205,6 @@ Status DBImpl::Put(const WriteOptions& o, const Slice& key, const Slice& val) {
   total_bytes+=val.size();
   num_entries+=1;
 
-  std::ofstream file;
-  file.open("METADATA_DB", std::ios::trunc);
-  file << num_entries;
-  file.close();
-
   //VersionSet::LevelSummaryStorage tmp;
   //std::cout << versions_->LevelSummary(&tmp) << std::endl;
 

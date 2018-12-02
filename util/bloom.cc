@@ -49,12 +49,20 @@ class BloomFilterPolicy : public FilterPolicy {
   virtual void CreateFilter(const Slice* keys, int n, std::string* dst) const {
     size_t bits = n * bits_per_key_;
 
-    long current_entries = 0;
+    long cur = 0;
+    
+    std::ifstream ifile;
+    ifile.open("test");
+    ifile >> cur;
+    ifile.close();
 
-    std::ifstream file;
-    file.open("METADATA_DB");
-    file >> current_entries;
-    file.close();
+    cur = cur + n;
+
+    std::ofstream ofile;
+    ofile.open("test", std::ios::trunc);
+    ofile << cur;
+    ofile.close();
+
 
     std::vector<Run> runs;
 
@@ -73,9 +81,11 @@ class BloomFilterPolicy : public FilterPolicy {
 
     // dynamic bit per entries for optimal bloom filters
     if (monkey_filters_) {
-      bits = calculate_bits(current_entries, runs) * n;
-      k_new = static_cast<size_t>(bits * 0.69);
-      //std::cout << calculate_bits(current_entries, runs) << std::endl;
+      int new_bits_per = calculate_bits(cur, runs);
+
+      bits = new_bits_per * n;
+      k_new = static_cast<size_t>(new_bits_per);
+      //std::cout << new_bits_per << std::endl;
     }
     // Compute bloom filter size (in both bits and bytes)
     
