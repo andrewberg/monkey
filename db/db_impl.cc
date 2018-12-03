@@ -1031,9 +1031,11 @@ Status DBImpl::DoCompactionWork(CompactionState* compact) {
       if (monkey) {
         bits_levels = get_bits_level(new_level, runs);
         compact->builder->set_bits(options_, bits_levels);
+        std::cout << bits_levels << std::endl;
 
-        //if (bits_levels == 0)
-         // std::cout << new_level;
+        if (bits_levels == 0 || bits_levels > 20) {
+          print_run_results(runs);
+        }
       }
 
       compact->current_output()->largest.DecodeFrom(key);

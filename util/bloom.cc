@@ -50,7 +50,7 @@ class BloomFilterPolicy : public FilterPolicy {
     size_t bits = n * bits_per_key_;
 
     size_t k_new = static_cast<size_t>(bits_per_key_ * 0.69);
-    //std::cout << num_bits << std::endl;
+
     // dynamic bit per entries for optimal bloom filters
     if (monkey_filters_) {
       bits = num_bits * n;
