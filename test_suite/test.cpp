@@ -55,10 +55,12 @@ int main(int argc, char** argv)
     std::string value_string = "3353ZSt8TukolvuFuodXvliCdrf6N4kgO3Yv0tuNCwsMei1zROLp1Jg5XmMICe8ZFv2lOhuX9y939CPHWtjnYiP0B1jf2xD39CwPCq0gP3Iitr3Ze1YlMy0xBhDz1iqPqNgAlrbzUerxUll0dxoJ7DCdjvOErVoUZrRP7OdWjfjzPRVgEr0twJFoeUMA5oIuqPMdev71I8AnL4d3KODNYVaRGn58IjF6n3DL9kHD5W5JBfbluKVIXAqJXhewbBIhb5FOyhdt5NA3FjcZLrxG8LwezRtp9734iQPnrROXK6agAI2O8oYmWqEZmJbafnL0TEapMyka1uC26pVqcLMfU3tRFgxnXVmfEMEX9kqOiW9tFcxdAfUJlfbQIeuUkUvkTO2AgldkPetBPdFnn3Uutcn7zsPk7ag5HorwpYeeprgzJP8SI7EjpiZgNxV1VIsgCSW8RZIi98LHc32j4U3bNVIeKy3N4Qrzr3Flg9r014RikQtIVU6pYbKt4vtJ4bhCi1mkGaiJpRb16jXQoHC8YEUsmjAKNHquvmEjCMZ0EClkNCB5vIJSwmnhrbRAPHM2KIyQNUbuuzibvqg4E7b1n7cB7VA9elo9drNJAIZXmUTuQ5AkJ5WINKBCUfy6Xmp1E8cYRZ0eakvDVLRcGmQX9zAUA0smjeLLqxEfHywnvBLwVka5k2KgngfXRd4BsdlMwflSI2ecmDjbn590Izkmj16rEpTkrmsZG6SGL8EcrsJ1L6KMABGuA71dLC781mjsClbQfCdLLC8JG6misJzAt3nITUtZaBHCvMOrLPAtht80DMEaEQ3W4xVckR1Ebh0QIt1WZkXI9LVPl7oBBbBQTk7O4uIP5tIwlctATkg7GI83GFVcWhmcEtZ0ThvjpWRRHTRcPZmawjAKbtOzPHNlvnmI7w69dmMAf3d0bWQyziJC3j2lp35otgEIS4EBi6JZqmZeVvTeLfJ8tvHgy0jopMprrkyeu2HSyj4uoqsO";
 
     // number of keys, default is 1 million keys as per the paper
-    int num_keys = 2 << 19;
+    int num_keys = 2 << 15;
 
     // size of value to generate
     int value_size = 1024;
+
+    int key_space = num_keys * 1000;
     
     // Add num_keys key value pairs to the database
     leveldb::WriteOptions writeOptions;
@@ -68,8 +70,10 @@ int main(int argc, char** argv)
             std::cout << i << std::endl;
         }
 
+        int  r = rand() % key_space;
+
         ostringstream keyStream;
-        keyStream << "Key" << i;
+        keyStream << "Key" << r;
         
         ostringstream valueStream;
         valueStream << create_string(value_size) << i;
@@ -96,14 +100,14 @@ int main(int argc, char** argv)
     std::chrono::duration<double> total_time = std::chrono::duration<double>(0);
 
     for (int i = 0; i < num_gets; ++i) {
-        int r = rand() % num_gets;
+        int r = rand() % num_keys;
 
         // time point for before the get
         std::chrono::high_resolution_clock::time_point t1 = 
             std::chrono::high_resolution_clock::now();
 
         // get operation that will not return a value
-        db->Get(readOptions, "DNE" + std::to_string(r), &str);
+        db->Get(readOptions, "Key" + std::to_string(r), &str);
 
         // time point for after the get
         std::chrono::high_resolution_clock::time_point t2 = 

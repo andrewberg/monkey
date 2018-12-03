@@ -1011,14 +1011,14 @@ Status DBImpl::DoCompactionWork(CompactionState* compact) {
 
       std::vector<Run> runs;
 
-      int num_entries = 2 << 19;
+      int total_entries = 2 << 15;
       int bits_per_entry = 5;
       int size_per_entry = 1024;
       int size_ratio = 2;
 
-      int memory_budget = num_entries * bits_per_entry;
+      int memory_budget = total_entries * bits_per_entry;
 
-      create_runs(size_ratio, size_per_entry, num_entries, bits_per_entry, runs);
+      create_runs(size_ratio, size_per_entry, total_entries, bits_per_entry, runs);
 
       run_tests(memory_budget, runs);
 

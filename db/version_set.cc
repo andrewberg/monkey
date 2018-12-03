@@ -18,6 +18,8 @@
 #include "util/coding.h"
 #include "util/logging.h"
 
+#include <iostream>
+
 namespace leveldb {
 
 static size_t TargetFileSize(const Options* options) {
@@ -338,7 +340,6 @@ Status Version::Get(const ReadOptions& options,
   Slice user_key = k.user_key();
   const Comparator* ucmp = vset_->icmp_.user_comparator();
   Status s;
-
   stats->seek_file = nullptr;
   stats->seek_file_level = -1;
   FileMetaData* last_file_read = nullptr;
@@ -391,6 +392,8 @@ Status Version::Get(const ReadOptions& options,
       }
     }
 
+
+
     for (uint32_t i = 0; i < num_files; ++i) {
       if (last_file_read != nullptr && stats->seek_file == nullptr) {
         // We have had more than one seek for this read.  Charge the 1st file.
@@ -401,7 +404,6 @@ Status Version::Get(const ReadOptions& options,
       FileMetaData* f = files[i];
       last_file_read = f;
       last_file_read_level = level;
-
       Saver saver;
       saver.state = kNotFound;
       saver.ucmp = ucmp;
@@ -409,6 +411,7 @@ Status Version::Get(const ReadOptions& options,
       saver.value = value;
       s = vset_->table_cache_->Get(options, f->number, f->file_size,
                                    ikey, &saver, SaveValue);
+
       if (!s.ok()) {
         return s;
       }

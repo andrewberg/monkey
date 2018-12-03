@@ -87,7 +87,7 @@ class BloomFilterPolicy : public FilterPolicy {
   virtual bool KeyMayMatch(const Slice& key, const Slice& bloom_filter) const {
     const size_t len = bloom_filter.size();
 
-    std::cout << len << std::endl;
+    //std::cout << len << std::endl;
     if (len < 2) return false;
 
     const char* array = bloom_filter.data();
