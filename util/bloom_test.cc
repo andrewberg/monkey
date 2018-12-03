@@ -25,7 +25,7 @@ class BloomTest {
   std::vector<std::string> keys_;
 
  public:
-  BloomTest() : policy_(NewBloomFilterPolicy(10, false)) { } // andrew false for this test
+  BloomTest() : policy_(NewBloomFilterPolicy(10, true)) { } // andrew false for this test
 
   ~BloomTest() {
     delete policy_;
@@ -47,7 +47,7 @@ class BloomTest {
     }
     filter_.clear();
     policy_->CreateFilter(&key_slices[0], static_cast<int>(key_slices.size()),
-                          &filter_);
+                          &filter_, 2);
     keys_.clear();
     if (kVerbose >= 2) DumpFilter();
   }

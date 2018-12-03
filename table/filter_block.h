@@ -28,10 +28,10 @@ class FilterPolicy;
 //      (StartBlock AddKey*)* Finish
 class FilterBlockBuilder {
  public:
-  explicit FilterBlockBuilder(const FilterPolicy*);
+  explicit FilterBlockBuilder(const FilterPolicy*, int);
 
   void StartBlock(uint64_t block_offset);
-  void AddKey(const Slice& key, int bits); // andrew
+  void AddKey(const Slice& key); // andrew
   Slice Finish();
 
  private:

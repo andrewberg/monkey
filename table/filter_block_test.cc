@@ -20,9 +20,9 @@ class TestHashFilter : public FilterPolicy {
     return "TestHashFilter";
   }
 
-  virtual void CreateFilter(const Slice* keys, int n, std::string* dst) const {
+  virtual void CreateFilter(const Slice* keys, int n, std::string* dst, int num_bits) const {
     for (int i = 0; i < n; i++) {
-      uint32_t h = Hash(keys[i].data(), keys[i].size(), 1);
+      uint32_t h = Hash(keys[i].data(), keys[i].size(), 10);
       PutFixed32(dst, h);
     }
   }
@@ -44,7 +44,7 @@ class FilterBlockTest {
 };
 
 TEST(FilterBlockTest, EmptyBuilder) {
-  FilterBlockBuilder builder(&policy_);
+  FilterBlockBuilder builder(&policy_, 10);
   Slice block = builder.Finish();
   ASSERT_EQ("\\x00\\x00\\x00\\x00\\x0b", EscapeString(block));
   FilterBlockReader reader(&policy_, block);
@@ -53,7 +53,8 @@ TEST(FilterBlockTest, EmptyBuilder) {
 }
 
 TEST(FilterBlockTest, SingleChunk) {
-  FilterBlockBuilder builder(&policy_);
+
+  FilterBlockBuilder builder(&policy_, 10);
   builder.StartBlock(100);
   builder.AddKey("foo");
   builder.AddKey("bar");
@@ -74,7 +75,9 @@ TEST(FilterBlockTest, SingleChunk) {
 }
 
 TEST(FilterBlockTest, MultiChunk) {
-  FilterBlockBuilder builder(&policy_);
+  FilterBlockBuilder builder(&policy_, 10);
+
+  int num_bits = 10;
 
   // First filter
   builder.StartBlock(0);

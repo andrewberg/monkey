@@ -31,6 +31,10 @@ struct TableBuilder::Rep {
   bool closed;          // Either Finish() or Abandon() has been called.
   FilterBlockBuilder* filter_block;
 
+  int num_bits;
+
+  bool bitsset;
+
   // We do not emit the index entry for a block until we have seen the
   // first key for the next data block.  This allows us to use shorter
   // keys in the index block.  For example, consider a block boundary
@@ -54,8 +58,9 @@ struct TableBuilder::Rep {
         index_block(&index_block_options),
         num_entries(0),
         closed(false),
+        bitsset(false),
         filter_block(opt.filter_policy == nullptr ? nullptr
-                     : new FilterBlockBuilder(opt.filter_policy)),
+                     : new FilterBlockBuilder(opt.filter_policy, 5)),
         pending_index_entry(false) {
     index_block_options.block_restart_interval = 1;
   }
@@ -74,6 +79,17 @@ TableBuilder::~TableBuilder() {
   delete rep_;
 }
 
+void TableBuilder::set_bits(const Options& options, int bits) {
+  rep_->num_bits;
+
+  if (!rep_->bitsset) {
+    rep_->filter_block = new FilterBlockBuilder(options.filter_policy, bits);
+    rep_->bitsset = true;
+    rep_->filter_block->StartBlock(0);
+    //std::cout << "set" << std::endl;
+  }
+}
+
 Status TableBuilder::ChangeOptions(const Options& options) {
   // Note: if more fields are added to Options, update
   // this function to catch changes that should not be allowed to
@@ -90,7 +106,7 @@ Status TableBuilder::ChangeOptions(const Options& options) {
   return Status::OK();
 }
 
-void TableBuilder::Add(const Slice& key, const Slice& value, int bits) {
+void TableBuilder::Add(const Slice& key, const Slice& value) {
   
   Rep* r = rep_;
   assert(!r->closed);
@@ -109,7 +125,7 @@ void TableBuilder::Add(const Slice& key, const Slice& value, int bits) {
   }
 
   if (r->filter_block != nullptr) {
-    r->filter_block->AddKey(key, bits); // number of bits can be added here based on the level it is going to
+    r->filter_block->AddKey(key); // number of bits can be added here based on the level it is going to
     //std::cout << "Adding to filter" << std::endl;
   }
 

@@ -79,6 +79,10 @@ int main(int argc, char** argv)
 
     std::cout << "done with puts" << std::endl;
 
+    delete db;
+
+    leveldb::DB::Open(options, db_file, &db);
+
     // number of gets to perform for the test run, default to 16K for the given research info
     int num_gets = 16000;
     

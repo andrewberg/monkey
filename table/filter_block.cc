@@ -17,8 +17,9 @@ namespace leveldb {
 static const size_t kFilterBaseLg = 11;
 static const size_t kFilterBase = 1 << kFilterBaseLg; // 2048
 
-FilterBlockBuilder::FilterBlockBuilder(const FilterPolicy* policy)
-    : policy_(policy) {
+FilterBlockBuilder::FilterBlockBuilder(const FilterPolicy* policy, int bits)
+    : policy_(policy),
+      bits_per_key(bits) {
 }
 
 void FilterBlockBuilder::StartBlock(uint64_t block_offset) {
@@ -30,11 +31,10 @@ void FilterBlockBuilder::StartBlock(uint64_t block_offset) {
   }
 }
 
-void FilterBlockBuilder::AddKey(const Slice& key, int bits) {
+void FilterBlockBuilder::AddKey(const Slice& key) {
   Slice k = key;
   start_.push_back(keys_.size());
   keys_.append(k.data(), k.size());
-  bits_per_key = bits; // andrew
 }
 
 Slice FilterBlockBuilder::Finish() {
@@ -99,6 +99,7 @@ FilterBlockReader::FilterBlockReader(const FilterPolicy* policy,
 
 bool FilterBlockReader::KeyMayMatch(uint64_t block_offset, const Slice& key) {
   uint64_t index = block_offset >> base_lg_;
+  std::cout << "key may fatch" << std::endl;
   if (index < num_) {
     uint32_t start = DecodeFixed32(offset_ + index*4);
     uint32_t limit = DecodeFixed32(offset_ + index*4 + 4);

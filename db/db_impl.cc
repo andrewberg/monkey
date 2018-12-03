@@ -1026,10 +1026,14 @@ Status DBImpl::DoCompactionWork(CompactionState* compact) {
 
       if (monkey) {
         bits_levels = get_bits_level(new_level, runs);
+        compact->builder->set_bits(options_, bits_levels);
+
+        if (bits_levels == 0)
+          std::cout << new_level;
       }
 
       compact->current_output()->largest.DecodeFrom(key);
-      compact->builder->Add(key, input->value(), bits_levels); // builder is TableBuilder and adds the key to the Table
+      compact->builder->Add(key, input->value()); // builder is TableBuilder and adds the key to the Table
       
       // Close output file if it is big enough
       if (compact->builder->FileSize() >=
