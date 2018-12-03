@@ -37,9 +37,6 @@
 #include "util/mutexlock.h"
 
 
-// andrew
-#include "algorithm_suite/autotune-filters/auto_tune_filters.h"
-
 namespace leveldb {
 
 const int kNumNonTableCacheFiles = 10;
@@ -143,6 +140,7 @@ DBImpl::DBImpl(const Options& raw_options, const std::string& dbname)
       imm_(nullptr),
       logfile_(nullptr),
       logfile_number_(0),
+      levels_(std::vector<Run>(config::kNumLevels)), // andrew
       log_(nullptr),
       seed_(0),
       tmp_batch_(new WriteBatch),
@@ -1008,15 +1006,21 @@ Status DBImpl::DoCompactionWork(CompactionState* compact) {
 
       // can pass down the number of bits here based on new level
       int new_level = compact->compaction->level() + 1;
+      int cur_level = new_level - 1;
 
       std::vector<Run> runs;
+      //std::cout << num_entries << std::endl; // andrew why is this going out of bounds at end of run
 
       int total_entries = 2 << 15;
       int bits_per_entry = 5;
       int size_per_entry = 1024;
       int size_ratio = 2;
 
-      int memory_budget = total_entries * bits_per_entry;
+      int memory_budget = num_entries * bits_per_entry;
+
+      //levels_[cur_level].setEntries(levels_[cur_level].getEntries() - 1);
+
+      //levels_[new_level].setEntries(levels_[new_level].getEntries() + 1);
 
       create_runs(size_ratio, size_per_entry, total_entries, bits_per_entry, runs);
 
@@ -1028,8 +1032,8 @@ Status DBImpl::DoCompactionWork(CompactionState* compact) {
         bits_levels = get_bits_level(new_level, runs);
         compact->builder->set_bits(options_, bits_levels);
 
-        if (bits_levels == 0)
-          std::cout << new_level;
+        //if (bits_levels == 0)
+         // std::cout << new_level;
       }
 
       compact->current_output()->largest.DecodeFrom(key);
@@ -1039,6 +1043,10 @@ Status DBImpl::DoCompactionWork(CompactionState* compact) {
       if (compact->builder->FileSize() >=
           compact->compaction->MaxOutputFileSize()) {
         status = FinishCompactionOutputFile(compact, input); // calls this with the file when the file is big enough
+        
+        //print_levels(levels_); // andrew
+        //std::cout << std::endl;
+
         if (!status.ok()) {
           break;
         }
@@ -1235,8 +1243,12 @@ void DBImpl::ReleaseSnapshot(const Snapshot* snapshot) {
 // Convenience methods
 Status DBImpl::Put(const WriteOptions& o, const Slice& key, const Slice& val) {
   
+  // Andrew
   total_bytes+=val.size();
   num_entries+=1;
+
+
+  levels_[0].setEntries(levels_[0].getEntries() + 1); // Andrew
 
   //VersionSet::LevelSummaryStorage tmp;
   //std::cout << versions_->LevelSummary(&tmp) << std::endl;

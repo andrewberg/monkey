@@ -10,7 +10,9 @@ class Run {
 	public:
 		/* constructor for the Run */
 
-		Run() {}
+		Run():
+			 entries(0),
+			 bits(0) {}
 
 		Run(int e, int b): entries(e),
 						   bits(b) {}

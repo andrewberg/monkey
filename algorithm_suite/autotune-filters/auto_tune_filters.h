@@ -29,6 +29,9 @@ create_runs(int ratio, int buffer, int entries, int bits_per_entry, std::vector<
 void
 print_run_results(std::vector<Run>);
 
+void
+print_levels(std::vector<Run> levels);
+
 std::vector<Run>
 auto_tune_filters(int, std::vector<Run> &);
 

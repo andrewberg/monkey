@@ -9,6 +9,7 @@
 #include <set>
 #include <iostream>
 #include <fstream>
+#include <vector>
 #include "db/dbformat.h"
 #include "db/log_writer.h"
 #include "db/snapshot.h"
@@ -16,6 +17,9 @@
 #include "leveldb/env.h"
 #include "port/port.h"
 #include "port/thread_annotations.h"
+
+// andrew
+#include "algorithm_suite/autotune-filters/auto_tune_filters.h"
 
 namespace leveldb {
 
@@ -69,6 +73,8 @@ class DBImpl : public DB {
   /* andrew */
   long num_entries;
   long total_bytes;
+
+  std::vector<Run> levels_;
 
   std::ofstream db_metadata_out;
   std::ifstream db_metadata_in;

@@ -173,6 +173,23 @@ print_run_results(std::vector<Run> runs)
 }
 
 /*
+ * print the levels out for debugging in db_impl.cc
+ */
+
+void
+print_levels(std::vector<Run> levels)
+{
+	for (int i = 0; i < levels.size(); ++i) {
+		Run current_level = levels[i];
+
+		std::cout << "Level " << i << ", " << std::endl;
+		std::cout << "Number of entries: " << current_level.getEntries() 
+			<< std::endl;
+	}
+}
+
+
+/*
  * function to run the test data in comparision to State of the Art
  * to Monkey algorithm to be able to show differences
  */
