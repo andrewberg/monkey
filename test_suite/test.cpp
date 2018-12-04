@@ -6,6 +6,7 @@
 #include <chrono>
 #include <time.h>
 #include <stdlib.h>
+#include <thread>
 
 #include "leveldb/db.h"
 #include "leveldb/filter_policy.h"
@@ -55,7 +56,7 @@ int main(int argc, char** argv)
     std::string value_string = "3353ZSt8TukolvuFuodXvliCdrf6N4kgO3Yv0tuNCwsMei1zROLp1Jg5XmMICe8ZFv2lOhuX9y939CPHWtjnYiP0B1jf2xD39CwPCq0gP3Iitr3Ze1YlMy0xBhDz1iqPqNgAlrbzUerxUll0dxoJ7DCdjvOErVoUZrRP7OdWjfjzPRVgEr0twJFoeUMA5oIuqPMdev71I8AnL4d3KODNYVaRGn58IjF6n3DL9kHD5W5JBfbluKVIXAqJXhewbBIhb5FOyhdt5NA3FjcZLrxG8LwezRtp9734iQPnrROXK6agAI2O8oYmWqEZmJbafnL0TEapMyka1uC26pVqcLMfU3tRFgxnXVmfEMEX9kqOiW9tFcxdAfUJlfbQIeuUkUvkTO2AgldkPetBPdFnn3Uutcn7zsPk7ag5HorwpYeeprgzJP8SI7EjpiZgNxV1VIsgCSW8RZIi98LHc32j4U3bNVIeKy3N4Qrzr3Flg9r014RikQtIVU6pYbKt4vtJ4bhCi1mkGaiJpRb16jXQoHC8YEUsmjAKNHquvmEjCMZ0EClkNCB5vIJSwmnhrbRAPHM2KIyQNUbuuzibvqg4E7b1n7cB7VA9elo9drNJAIZXmUTuQ5AkJ5WINKBCUfy6Xmp1E8cYRZ0eakvDVLRcGmQX9zAUA0smjeLLqxEfHywnvBLwVka5k2KgngfXRd4BsdlMwflSI2ecmDjbn590Izkmj16rEpTkrmsZG6SGL8EcrsJ1L6KMABGuA71dLC781mjsClbQfCdLLC8JG6misJzAt3nITUtZaBHCvMOrLPAtht80DMEaEQ3W4xVckR1Ebh0QIt1WZkXI9LVPl7oBBbBQTk7O4uIP5tIwlctATkg7GI83GFVcWhmcEtZ0ThvjpWRRHTRcPZmawjAKbtOzPHNlvnmI7w69dmMAf3d0bWQyziJC3j2lp35otgEIS4EBi6JZqmZeVvTeLfJ8tvHgy0jopMprrkyeu2HSyj4uoqsO";
 
     // number of keys, default is 1 million keys as per the paper
-    int num_keys = 2 << 15;
+    int num_keys = 2<<19;
 
     // size of value to generate
     int value_size = 1024;
@@ -70,7 +71,7 @@ int main(int argc, char** argv)
             std::cout << i << std::endl;
         }
 
-        int  r = rand() % key_space;
+        int r = rand() % num_keys;
 
         ostringstream keyStream;
         keyStream << "Key" << r;
@@ -83,9 +84,6 @@ int main(int argc, char** argv)
 
     std::cout << "done with puts" << std::endl;
 
-    delete db;
-
-    leveldb::DB::Open(options, db_file, &db);
 
     // number of gets to perform for the test run, default to 16K for the given research info
     int num_gets = 16000;
@@ -122,9 +120,8 @@ int main(int argc, char** argv)
     }
 
     std::cout << "It took me " 
-        //<< std::chrono::duration_cast<std::chrono::microseconds>(total_time).count()/((double) num_gets)
         << total_time.count()/num_gets
-        << " milliseconds on average for " << num_gets << " zero-point lookups.";
+        << " seconds on average for " << num_gets << " zero-result point lookups.";
     std::cout << std::endl;
 
     // Close the database

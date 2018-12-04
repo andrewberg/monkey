@@ -393,7 +393,6 @@ Status Version::Get(const ReadOptions& options,
     }
 
 
-
     for (uint32_t i = 0; i < num_files; ++i) {
       if (last_file_read != nullptr && stats->seek_file == nullptr) {
         // We have had more than one seek for this read.  Charge the 1st file.

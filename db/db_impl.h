@@ -75,6 +75,7 @@ class DBImpl : public DB {
   long total_bytes;
 
   std::vector<Run> levels_;
+  std::vector<Run> runs;
 
   std::ofstream db_metadata_out;
   std::ifstream db_metadata_in;

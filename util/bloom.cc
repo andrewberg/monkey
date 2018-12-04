@@ -47,6 +47,8 @@ class BloomFilterPolicy : public FilterPolicy {
   }
 
   virtual void CreateFilter(const Slice* keys, int n, std::string* dst, int num_bits) const {
+    
+    /* andrew */
     size_t bits = n * bits_per_key_;
 
     size_t k_new = static_cast<size_t>(bits_per_key_ * 0.69);
@@ -81,6 +83,8 @@ class BloomFilterPolicy : public FilterPolicy {
         array[bitpos/8] |= (1 << (bitpos % 8));
         h += delta;
       }
+
+      /* andrew */
     }
   }
 

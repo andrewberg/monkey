@@ -149,6 +149,17 @@ DBImpl::DBImpl(const Options& raw_options, const std::string& dbname)
       versions_(new VersionSet(dbname_, &options_, table_cache_,
                                &internal_comparator_)) {
   has_imm_.Release_Store(nullptr);
+
+  int total_entries = 2<<19;
+  int bits_per_entry = 5;
+  int size_per_entry = 1024;
+  int size_ratio = 2;
+
+  int memory_budget = total_entries * bits_per_entry;
+
+  create_runs(size_ratio, size_per_entry, total_entries, bits_per_entry, runs);
+
+  run_tests(memory_budget, runs);
 }
 
 DBImpl::~DBImpl() {
@@ -1002,45 +1013,26 @@ Status DBImpl::DoCompactionWork(CompactionState* compact) {
         compact->current_output()->smallest.DecodeFrom(key);
       }
 
+      /* andrew */
+
       bool monkey = true;
 
       // can pass down the number of bits here based on new level
       int new_level = compact->compaction->level() + 1;
-      int cur_level = new_level - 1;
-
-      std::vector<Run> runs;
-      //std::cout << num_entries << std::endl; // andrew why is this going out of bounds at end of run
-
-      int total_entries = 2 << 15;
-      int bits_per_entry = 5;
-      int size_per_entry = 1024;
-      int size_ratio = 2;
-
-      int memory_budget = num_entries * bits_per_entry;
-
-      //levels_[cur_level].setEntries(levels_[cur_level].getEntries() - 1);
-
-      //levels_[new_level].setEntries(levels_[new_level].getEntries() + 1);
-
-      create_runs(size_ratio, size_per_entry, total_entries, bits_per_entry, runs);
-
-      run_tests(memory_budget, runs);
+      int cur_level = new_level - 1;    
 
       int bits_levels = 5;
 
       if (monkey) {
         bits_levels = get_bits_level(new_level, runs);
         compact->builder->set_bits(options_, bits_levels);
-        std::cout << bits_levels << std::endl;
-
-        if (bits_levels == 0 || bits_levels > 20) {
-          print_run_results(runs);
-        }
       }
 
       compact->current_output()->largest.DecodeFrom(key);
       compact->builder->Add(key, input->value()); // builder is TableBuilder and adds the key to the Table
       
+       /* andrew */
+
       // Close output file if it is big enough
       if (compact->builder->FileSize() >=
           compact->compaction->MaxOutputFileSize()) {
@@ -1168,6 +1160,8 @@ Status DBImpl::Get(const ReadOptions& options,
   //std::cout << num_entries << std::endl;
   //std::cout << total_bytes << std::endl;
 
+
+
   Status s;
   MutexLock l(&mutex_);
   SequenceNumber snapshot;
@@ -1177,6 +1171,7 @@ Status DBImpl::Get(const ReadOptions& options,
   } else {
     snapshot = versions_->LastSequence();
   }
+
 
   MemTable* mem = mem_;
   MemTable* imm = imm_;
@@ -1188,19 +1183,26 @@ Status DBImpl::Get(const ReadOptions& options,
   bool have_stat_update = false;
   Version::GetStats stats;
 
+
   // Unlock while reading from files and memtables
   {
+
     mutex_.Unlock();
     // First look in the memtable, then in the immutable memtable (if any).
     LookupKey lkey(key, snapshot);
+
+
     if (mem->Get(lkey, value, &s)) {
       // Done
+      //std::cout << "in memtable" << std::endl;
     } else if (imm != nullptr && imm->Get(lkey, value, &s)) {
       // Done
+      //std::cout << "in imm" << std::endl;
     } else {
       s = current->Get(options, lkey, value, &stats);
       have_stat_update = true;
     }
+
     mutex_.Lock();
   }
 
